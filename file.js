@@ -1,4 +1,5 @@
 "use strict";
+//Defining all of the document element
 const views = document.getElementById("views");
 const cost = document.getElementById("cost");
 const progress = document.getElementById("progress");
@@ -7,24 +8,29 @@ const progressValue = document.getElementById("progressValue");
 const box = document.getElementById("box");
 const switchPlan = document.getElementById("switchPlan");
 const checkbox = document.getElementById("checkbox");
-
+//Define all of the initial measures
 let windowWidth = window.innerWidth;
 let progressWidth = progress.offsetWidth;
 let planIsChecked = false;
-
+//recalculating all the initial measures onresize
 window.onresize = function () {
   windowWidth = window.innerWidth;
   progressWidth = progress.offsetWidth;
 };
-function convertToMoney(num) {
-  return planIsChecked ? (num / 6.25) * 0.75 : num / 6.25;
-}
+//function to convert nums into dollars
 function formater(num) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
   }).format(num);
 }
+//function to convert the pageviews into dollars
+function convertViewsIntoDollars(num) {
+  let val = planIsChecked ? (num / 6.25) * 0.75 : num / 6.25;
+
+  return formater(val);
+}
+//function to dynamically handle the move of the progress bar on mousemove
 function movealong(event) {
   const emptyLeft = (windowWidth - progressWidth) / 2;
   let percent = ((event.clientX - emptyLeft) * 100) / progressWidth;
@@ -37,20 +43,18 @@ function movealong(event) {
     document.body.removeEventListener("mousemove", movealong);
   }
   let pageViews = Math.round(percent) * 2;
-  let costValue = convertToMoney(+pageViews);
-  costValue = formater(costValue);
+  let costValue = convertViewsIntoDollars(pageViews);
   views.innerText = pageViews + "K";
   cost.innerText = costValue;
 }
-
+//function to handle mousedown
 progress.onmousedown = function (event) {
   const emptyLeft = (windowWidth - progressWidth) / 2;
   const percent = ((event.clientX - emptyLeft) * 100) / progressWidth;
   progressValue.style.width = percent + "%";
   document.body.addEventListener("mousemove", movealong);
   let pageViews = Math.round(percent) * 2;
-  let costValue = convertToMoney(+pageViews);
-  costValue = formater(costValue);
+  let costValue = convertViewsIntoDollars(pageViews);
   views.innerText = pageViews + "K";
   cost.innerText = costValue;
   box.onmouseup = function () {
@@ -60,6 +64,7 @@ progress.onmousedown = function (event) {
     document.body.removeEventListener("mousemove", movealong);
   };
 };
+//function to handleKeyboard
 const handleKeyboard = function (e) {
   let width = +progressValue.style.width.split("%")[0];
   if (e.key == "ArrowRight") {
@@ -72,18 +77,18 @@ const handleKeyboard = function (e) {
     progressValue.style.width = width + "%";
   }
   let pageViews = Math.round(width) * 2;
-  let costValue = convertToMoney(+pageViews);
-  costValue = formater(costValue);
+  let costValue = convertViewsIntoDollars(pageViews);
   views.innerText = pageViews + "K";
   cost.innerText = costValue;
 };
-
+//function to add the event to the keyboard
 progressInput.onfocus = function () {
   progress.addEventListener("keydown", handleKeyboard);
   progressInput.onblur = function () {
     progress.removeEventListener("keydown", handleKeyboard);
   };
 };
+//function to handle the switch of plan
 switchPlan.onchange = function () {
   planIsChecked = !planIsChecked;
   let costValue;
